@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+		<div class="container-fluid">
+			<div class="h5 text-white text-decoration-none" href="#">TODO</div>
+		</div>
+	</nav>
+	<!-- a, href : GET방식, POST는 form 태그 한정 -->
+	<!-- action : SSR에서 form을 실행할때 아이디 비번 치고 엔터를치면 form은 새로고침이 됨... 새로고침하면서 데이터가 넘어간다 -->
+	<form action="./add" method="POST" class="d-flex justify-content-center align-items-center mt-5">
+		<div class="w-25">
+			<!-- 데이터를 서버단에서 받아오려면 name을 정해줘야한다. name을 기준으로 받아옴 -->
+			<input name="todo" type="text" class="form-control" placeholder="메모를 입력하세요"/>
+			<!-- 안보이게 데이터를 넘길 수 있다. -->
+			<!-- <input type="hidden" name="hiddenData" value="aa"/> -->
+		</div>
+		<!-- type을 잘 명시해야한다. -->
+		<!-- form 안에서 type을 지정하지 않으면 기본값이 submit으로 되어있다. -->
+		<button type="submit" class="btn btn-primary ml-4">메모하기</button>
+	</form>
+	<ul class="list-group w-75 ml-auto mr-auto mt-3">
+		<% data.forEach(li=>{ %>
+			<li class="list-group-item d-flex justify-content-between align-items-center">
+				<% if (li.checked === 'true') { %>
+					<input class="form-check-input flexCheckDefault" type="checkbox" value="" id="checkbox<%= li.id %>" onchange="changeStatus('<%=li.id%>')" checked />
+					<span> 
+						<!-- readonly : 클릭은되는데 수정이안된다 -->
+						<input class="form-check-input w-100 border-0 text-center text-decoration-line-through" type="text" id="todo<%=li.id%>" value="<%= li.todo %>" readonly />
+					</span>
+				<% } else{ %>
+					<input class="form-check-input flexCheckDefault" type="checkbox" value="" id="checkbox<%= li.id %>" onchange="changeStatus('<%=li.id%>')" />
+					<span> 
+						<!-- readonly : 클릭은되는데 수정이안된다 -->
+						<input class="form-check-input w-100 border-0 text-center" type="text" id="todo<%=li.id%>" value="<%= li.todo %>" readonly />
+					</span>
+				<% } %>
+				<div class="d-flex align-items-center">
+					<button class="btn btn-warning btn-sm" onclick="updateTodo('<%=li.id%>')" id="update<%=li.id%>">
+						수정
+					</button>
+					<button class="btn btn-danger btn-sm ml-3" onclick="deleteTodo('<%=li.id%>')" id="delete<%=li.id%>">
+						삭제
+					</button>
+				</div>
+			</li>
+		<% }) %> 
+	</ul>
+
+	<script>
+		// 체크부분을 업데이트하는 함수
+		function changeStatus(id){
+			const todoCheckbox = document.querySelector(`#checkbox${id}`);
+			console.log(todoCheckbox.checked);
+			location.href=`/update/check/${id}?checked=${todoCheckbox.checked}`;
+		}
+		function updateTodo(id){
+			console.log(id);
+			const updateButton=document.querySelector(`#update${id}`);
+			const todo = document.querySelector(`#todo${id}`);
+			if(updateButton.classList.contains("btn-info")){
+				// 업데이트를 실행
+				location.href=`/update/todo/${id}?todo=${todo.value}`;
+			}
+			updateButton.classList.replace("btn-warning", "btn-info");
+			todo.removeAttribute("readonly");
+			todo.focus();
+		}
+		function deleteTodo(id){
+			console.log(id);
+			const deleteButton=document.querySelector(`#delete${id}`);
+			const deleteQuestion = confirm("삭제하시겠습니까?");
+			console.log(deleteQuestion);
+			if(deleteQuestion){
+				location.href=`/delete/todo/${id}`;
+			}
+		}
+	</script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js" integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/" crossorigin="anonymous"></script>
+</body>
+</html>
